@@ -188,37 +188,13 @@ let currentLang="it";
 
 /* DATABASE */
 const places = [
-
-/* BORGHI */
-["Lollove","Borgo","Nuoro",40.3650,9.3324,"blue","Lollove","nord"],
-["Tempio Pausania","Borgo","Tempio",40.9000,9.1000,"blue","Tempio_Pausania","nord"],
-["Aggius","Borgo","Aggius",40.9300,8.9800,"blue","Aggius","nord"],
-["Atzara","Borgo","Atzara",39.9900,9.0700,"blue","Atzara","centro"],
 ["Bosa","Borgo","Bosa",40.3000,8.5000,"blue","Bosa","nord"],
-["Carloforte","Borgo","Carloforte",39.1400,8.3000,"blue","Carloforte","sud"],
-["Galtellì","Borgo","Nuoro",40.3900,9.6100,"blue","Galtelli","nord"],
-["Laconi","Borgo","Laconi",39.8500,9.0500,"blue","Laconi","centro"],
-["La Maddalena","Borgo","La Maddalena",41.2100,9.4100,"blue","La_Maddalena","nord"],
-["Oliena","Borgo","Oliena",40.2700,9.4000,"blue","Oliena","nord"],
-["Posada","Borgo","Posada",40.6300,9.7200,"blue","Posada","nord"],
-["Sadali","Borgo","Sadali",39.8200,9.2700,"blue","Sadali","centro"],
-["Sardara","Borgo","Sardara",39.6200,8.8200,"blue","Sardara","sud"],
-["Gavoi","Borgo","Gavoi",40.1600,9.2000,"blue","Gavoi","centro"],
 ["Castelsardo","Borgo","Castelsardo",40.9200,8.7100,"blue","Castelsardo","nord"],
-
-/* NURAGHI */
+["Lollove","Borgo","Nuoro",40.3650,9.3324,"blue","Lollove","nord"],
 ["Su Nuraxi","Nuraghe","Barumini",39.703,8.999,"red","Su_Nuraxi","sud"],
 ["Nuraghe Arrubiu","Nuraghe","Orroli",39.662,9.298,"red","Nuraghe_Arrubiu","sud"],
-["Funtana Coberta","Nuraghe","Ballao",39.584,9.383,"red","Funtana_Coberta","sud"],
-
-/* DOMUS */
 ["Anghelu Ruju","Domus de Janas","Alghero",40.6275,8.3197,"green","Anghelu_Ruju","nord"],
-["Su Crucifissu Mannu","Domus de Janas","Porto Torres",40.8100,8.4400,"green","Su_Crucifissu_Mannu","nord"],
-["Sant'Andrea Priu","Domus de Janas","Bonorva",40.4194,8.8358,"green","Necropoli_di_Sant%27Andrea_Priu","centro"],
-["Puttu Codinu","Domus de Janas","Villanova Monteleone",40.4853,8.4419,"green","Necropoli_di_Puttu_Codinu","nord"],
-["Mesu e Montes","Domus de Janas","Ossi",40.6389,8.5831,"green","Ossi","nord"],
-["Montessu","Domus de Janas","Villaperuccio",39.1242,8.6658,"green","Necropoli_di_Montessu","sud"],
-["Pranu Mutteddu","Domus de Janas","Goni",39.5761,9.2781,"green","Pranu_Mutteddu","sud"]
+["Montessu","Domus de Janas","Villaperuccio",39.1242,8.6658,"green","Necropoli_di_Montessu","sud"]
 ];
 
 function openMap(){
@@ -234,8 +210,8 @@ function openMap(){
     ).addTo(map);
 
     drawMarkers(places);
-
     started=true;
+
     setTimeout(()=>map.invalidateSize(),300);
   }else{
     setTimeout(()=>map.invalidateSize(),200);
@@ -248,7 +224,7 @@ function goHome(){
 }
 
 function wikiUrl(slug){
-  return "https://" + currentLang + ".wikipedia.org/wiki/" + slug;
+  return `https://${currentLang}.wikipedia.org/wiki/${slug}`;
 }
 
 function popupHTML(p){
@@ -269,7 +245,7 @@ function drawMarkers(data){
   markers=[];
 
   data.forEach(p=>{
-    let marker = L.circleMarker(
+    const marker = L.circleMarker(
       [p[3],p[4]],
       {
         radius:7,
@@ -284,26 +260,33 @@ function drawMarkers(data){
 }
 
 function filterArea(){
-  const area = document.getElementById("area").value;
+  const selected = document.getElementById("area").value;
 
-  if(area==="all"){
+  if(selected==="all"){
     drawMarkers(places);
   }else{
     drawMarkers(
-      places.filter(p=>p[7]===area)
+      places.filter(p=>p[7]===selected)
     );
   }
 }
 
 function changeLang(){
   currentLang = document.getElementById("lang").value;
+
+  const selected = document.getElementById("area").value;
+
+  if(selected==="all"){
+    drawMarkers(places);
+  }else{
+    drawMarkers(
+      places.filter(p=>p[7]===selected)
+    );
+  }
 }
 
 function searchPlace(){
-  const q = document
-    .getElementById("search")
-    .value
-    .toLowerCase();
+  const q = document.getElementById("search").value.toLowerCase();
 
   const found = places.find(p =>
     p[0].toLowerCase().includes(q)
