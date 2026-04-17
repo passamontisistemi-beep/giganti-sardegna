@@ -2,117 +2,457 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>I Giganti della Sardegna</title>
+<meta name="theme-color" content="#111111">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
-html,body{margin:0;padding:0;height:100%;font-family:Arial,sans-serif}
-#home,#mapPage{display:none;height:100vh}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%;font-family:Arial,Helvetica,sans-serif;background:#000}
+.page{display:none;height:100dvh}
 .show{display:block}
+
+/* HOME */
 #home{
-background:#111 url('image.png') center/cover no-repeat;
-color:white;text-align:center;
+background:url('image.png') center/cover no-repeat;
+position:relative;
+color:#fff;
 }
-#overlay{
+#home::before{
+content:"";
+position:absolute;inset:0;
+background:linear-gradient(rgba(0,0,0,.25),rgba(0,0,0,.55));
+}
+.home-inner{
+position:relative;z-index:2;
 height:100%;
-background:rgba(0,0,0,.45);
 display:flex;
 flex-direction:column;
-justify-content:center;
-align-items:center;
-gap:20px;
+justify-content:space-between;
+padding:14px;
 }
-h1{color:#f3d18b;margin:0;padding:0 20px}
-button,select{
-padding:10px 14px;
-border:none;
-border-radius:14px;
+.flags{
+display:flex;
+gap:8px;
+justify-content:flex-end;
+flex-wrap:wrap;
+}
+.flag{
+background:rgba(255,255,255,.12);
+border:1px solid rgba(255,255,255,.25);
+color:#fff;
+padding:8px 10px;
+border-radius:12px;
 cursor:pointer;
+font-size:20px;
 }
-#topbar{
-background:#111;color:#fff;padding:8px;
-display:flex;gap:6px;flex-wrap:wrap;
+.hero{
+text-align:center;
+margin-top:2vh;
 }
-#map{height:calc(100vh - 90px)}
-#footer{
-background:#111;color:#fff;text-align:center;padding:10px
+.hero h1{
+margin:0;
+font-size:clamp(36px,8vw,82px);
+line-height:.95;
+color:#f1c66b;
+text-shadow:0 4px 14px rgba(0,0,0,.55);
+}
+.hero p{
+margin:14px auto 0;
+max-width:920px;
+font-size:clamp(16px,2vw,34px);
+text-shadow:0 2px 8px rgba(0,0,0,.6);
+}
+.cta-wrap{
+display:flex;
+justify-content:center;
+margin-top:20px;
+}
+.cta{
+padding:16px 22px;
+border:none;
+border-radius:18px;
+font-size:18px;
+font-weight:700;
+cursor:pointer;
+background:#0c4f77;
+color:#fff;
+box-shadow:0 8px 18px rgba(0,0,0,.35);
+}
+.icons-row{
+display:flex;
+justify-content:center;
+gap:26px;
+flex-wrap:wrap;
+padding:8px 0;
+}
+.icon-card{
+text-align:center;
+color:#f1c66b;
+font-weight:700;
+font-size:14px;
+}
+.news{
+background:#05293a;
+color:#f3d18b;
+padding:10px;
+overflow:hidden;
+white-space:nowrap;
+border-top:1px solid rgba(255,255,255,.08);
+border-bottom:1px solid rgba(255,255,255,.08);
+}
+.marquee{
+display:inline-block;
+animation:mar 22s linear infinite;
+}
+@keyframes mar{
+from{transform:translateX(100%)}
+to{transform:translateX(-100%)}
+}
+.brand{
+text-align:center;
+padding:12px;
+background:#111;
+color:#f1d08c;
+letter-spacing:1px;
+}
+.brand b{font-weight:900}
+
+/* MAP PAGE */
+#mapPage{background:#0f1115;color:#fff}
+.topbar{
+padding:8px;
+background:#111;
+display:flex;
+gap:6px;
+flex-wrap:wrap;
+align-items:center;
+}
+.topbar .title{
+font-weight:800;
+margin-right:auto;
+color:#f1c66b;
+}
+.ctrl,select,input{
+padding:9px 10px;
+border:none;
+border-radius:12px;
+font-size:14px;
+}
+.ctrl{cursor:pointer}
+#map{
+height:calc(100dvh - 148px);
+width:100%;
+}
+.popup a{color:#0b57ff;text-decoration:none;font-weight:700}
+.popup{line-height:1.45}
+.small{font-size:12px;color:#ccc}
+@media(max-width:700px){
+.topbar .title{width:100%;margin-right:0}
+#map{height:calc(100dvh - 190px)}
 }
 </style>
 </head>
 <body>
 
-<div id="home" class="show">
-  <div id="overlay">
-    <h1>I Giganti della Sardegna</h1>
-    <button onclick="openMap()">MAP INTERATTIVO</button>
-    <div id="footer"><b>PASSAMONTI</b>_COMMUNICATION</div>
+<!-- HOME -->
+<section id="home" class="page show">
+  <div class="home-inner">
+
+    <div class="flags">
+      <button class="flag" onclick="setLang('it')">🇮🇹</button>
+      <button class="flag" onclick="setLang('en')">🇬🇧</button>
+      <button class="flag" onclick="setLang('fr')">🇫🇷</button>
+      <button class="flag" onclick="setLang('es')">🇪🇸</button>
+      <button class="flag" onclick="setLang('de')">🇩🇪</button>
+    </div>
+
+    <div class="hero">
+      <h1 id="heroTitle">I GIGANTI<br>SARDEGNA</h1>
+      <p id="heroSub">Mappa interattiva dei Nuraghi, Domus de Janas e luoghi storici della Sardegna</p>
+      <div class="cta-wrap">
+        <button class="cta" onclick="openMap()" id="btnMap">ESPLORA LA MAPPA</button>
+      </div>
+    </div>
+
+    <div class="icons-row">
+      <div class="icon-card">🏰<br>NURAGHI</div>
+      <div class="icon-card">🪨<br>DOMUS</div>
+      <div class="icon-card">🏘️<br>BORGHI</div>
+      <div class="icon-card">⚪<br>COMUNI</div>
+    </div>
+
+    <div>
+      <div class="news"><div class="marquee" id="rssText">prova prova prova • prova prova prova • prova prova prova •</div></div>
+      <div class="brand"><b>PASSAMONTI</b>_COMMUNICATION</div>
+    </div>
+
   </div>
-</div>
+</section>
 
-<div id="mapPage">
-  <div id="topbar">
-    <button onclick="goHome()">Home</button>
-    <button onclick="gps()">GPS</button>
+<!-- MAPPA -->
+<section id="mapPage" class="page">
+  <div class="topbar">
+    <div class="title" id="mapTitle">I Giganti della Sardegna</div>
 
-    <select id="lang">
-      <option value="it">🇮🇹</option>
-      <option value="en">🇬🇧</option>
+    <button class="ctrl" onclick="goHome()" id="homeBtn">Home</button>
+    <button class="ctrl" onclick="gpsLocate()" id="gpsBtn">GPS</button>
+
+    <select id="category" onchange="renderMarkers()">
+      <option value="all">Tutti</option>
+      <option value="Nuraghe">Nuraghi</option>
+      <option value="Domus de Janas">Domus</option>
+      <option value="Borgo">Borghi</option>
+      <option value="Comune">Comuni</option>
     </select>
+
+    <input id="search" placeholder="Cerca luogo">
+    <button class="ctrl" onclick="searchPlace()">Vai</button>
   </div>
 
   <div id="map"></div>
-  <div id="footer"><b>PASSAMONTI</b>_COMMUNICATION</div>
-</div>
+
+  <div class="news"><div class="marquee">prova prova prova • prova prova prova • prova prova prova •</div></div>
+  <div class="brand"><b>PASSAMONTI</b>_COMMUNICATION</div>
+</section>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-let mapLoaded=false;
-let map;
+/* ======= LINGUA ======= */
+let LANG = "it";
 
-const points = [
-["Bosa",40.3,8.5,"blue"],
-["Su Nuraxi",39.703,8.999,"red"],
-["Anghelu Ruju",40.6275,8.3197,"green"],
-["Palmavera",40.604,8.254,"red"],
-["Castelsardo",40.92,8.71,"blue"]
+const I18N = {
+it:{home:"Home",gps:"GPS",search:"Cerca luogo",all:"Tutti",map:"ESPLORA LA MAPPA",sub:"Mappa interattiva dei Nuraghi, Domus de Janas e luoghi storici della Sardegna"},
+en:{home:"Home",gps:"GPS",search:"Search place",all:"All",map:"EXPLORE MAP",sub:"Interactive map of Nuraghi, Domus de Janas and historical places of Sardinia"},
+fr:{home:"Accueil",gps:"GPS",search:"Rechercher",all:"Tous",map:"EXPLORER LA CARTE",sub:"Carte interactive des Nuraghes, Domus de Janas et lieux historiques de Sardaigne"},
+es:{home:"Inicio",gps:"GPS",search:"Buscar lugar",all:"Todos",map:"EXPLORAR MAPA",sub:"Mapa interactivo de Nuraghes, Domus de Janas y lugares históricos de Cerdeña"},
+de:{home:"Start",gps:"GPS",search:"Ort suchen",all:"Alle",map:"KARTE ÖFFNEN",sub:"Interaktive Karte der Nuraghen, Domus de Janas und historischen Orte Sardiniens"}
+};
+
+function setLang(l){
+LANG=l;
+applyTexts();
+if(mapLoaded) renderMarkers();
+}
+
+function applyTexts(){
+homeBtn.textContent=I18N[LANG].home;
+gpsBtn.textContent=I18N[LANG].gps;
+search.placeholder=I18N[LANG].search;
+btnMap.textContent=I18N[LANG].map;
+heroSub.textContent=I18N[LANG].sub;
+document.querySelector('#category option[value="all"]').textContent=I18N[LANG].all;
+}
+
+/* ======= DATI COMPLETI (da file utente) ======= */
+const places = [
+
+/* BORGHI */
+["Lollove","Borgo","Nuoro",40.3650,9.3324,"blue","Lollove"],
+["Tempio Pausania","Borgo","Tempio Pausania",40.9000,9.1000,"blue","Tempio_Pausania"],
+["Aggius","Borgo","Aggius",40.9300,8.9800,"blue","Aggius"],
+["Atzara","Borgo","Atzara",39.9900,9.0700,"blue","Atzara"],
+["Bosa","Borgo","Bosa",40.3000,8.5000,"blue","Bosa"],
+["Carloforte","Borgo","Carloforte",39.1400,8.3000,"blue","Carloforte"],
+["Galtellì","Borgo","Galtellì",40.3900,9.6100,"blue","Galtell%C3%AC"],
+["Laconi","Borgo","Laconi",39.8500,9.0500,"blue","Laconi"],
+["La Maddalena","Borgo","La Maddalena",41.2100,9.4100,"blue","La_Maddalena"],
+["Oliena","Borgo","Oliena",40.2700,9.4000,"blue","Oliena"],
+["Posada","Borgo","Posada",40.6300,9.7200,"blue","Posada"],
+["Sadali","Borgo","Sadali",39.8200,9.2700,"blue","Sadali"],
+["Sardara","Borgo","Sardara",39.6200,8.8200,"blue","Sardara"],
+["Gavoi","Borgo","Gavoi",40.1600,9.2000,"blue","Gavoi"],
+["Castelsardo","Borgo","Castelsardo",40.9200,8.7100,"blue","Castelsardo"],
+
+/* DOMUS */
+["Anghelu Ruju","Domus de Janas","Alghero",40.6275,8.3197,"green","Anghelu_Ruju"],
+["Su Crucifissu Mannu","Domus de Janas","Porto Torres",40.8100,8.4444,"green","Su_Crucifissu_Mannu"],
+["Roccia dell'Elefante","Domus de Janas","Castelsardo",40.8894,8.7461,"green","Roccia_dell'Elefante"],
+["Sant'Andrea Priu","Domus de Janas","Bonorva",40.4194,8.8358,"green","Necropoli_di_Sant%27Andrea_Priu"],
+["Puttu Codinu","Domus de Janas","Villanova Monteleone",40.4853,8.4419,"green","Necropoli_di_Puttu_Codinu"],
+["Mesu 'e Montes","Domus de Janas","Ossi",40.6389,8.5831,"green","Ossi"],
+["Monte Siseri","Domus de Janas","Putifigari",40.5731,8.3964,"green","Putifigari"],
+["Sa Pala Larga","Domus de Janas","Bonorva",40.4180,8.8475,"green","Bonorva"],
+["Sos Forrighesos","Domus de Janas","Anela",40.4356,9.0272,"green","Anela"],
+["Ispiluncas","Domus de Janas","Sedilo",40.1656,8.9247,"green","Sedilo"],
+["Brodu","Domus de Janas","Oniferi",40.2378,9.1764,"green","Oniferi"],
+["Istevene","Domus de Janas","Mamoiada",40.2225,9.2742,"green","Mamoiada"],
+["Montessu","Domus de Janas","Villaperuccio",39.1242,8.6658,"green","Necropoli_di_Montessu"],
+["Pranu Mutteddu","Domus de Janas","Goni",39.5761,9.2781,"green","Pranu_Mutteddu"],
+
+/* NURAGHI */
+["Su Nuraxi","Nuraghe","Barumini",39.7030,8.9990,"red","Su_Nuraxi"],
+["Nuraghe Arrubiu","Nuraghe","Orroli",39.6620,9.2980,"red","Nuraghe_Arrubiu"],
+["Funtana Coberta","Nuraghe","Ballao",39.5840,9.3830,"red","Funtana_Coberta"],
+["Palmavera","Nuraghe","Alghero",40.6040,8.2540,"red","Palmavera"],
+["Santu Antine","Nuraghe","Torralba",40.5150,8.7700,"red","Nuraghe_Santu_Antine"],
+["Losa","Nuraghe","Abbasanta",40.1280,8.8200,"red","Nuraghe_Losa"],
+["Seruci","Nuraghe","Gonnesa",39.2670,8.4690,"red","Nuraghe_Seruci"],
+["Genna Maria","Nuraghe","Villanovaforru",39.6320,8.8700,"red","Genna_Maria"],
+["Is Paras","Nuraghe","Isili",39.7390,9.1060,"red","Nuraghe_Is_Paras"],
+["Nuraddeo","Nuraghe","Dualchi",40.2300,8.8900,"red","Dualchi"],
+
+/* COMUNI */
+["Arzachena","Comune","Arzachena",41.0760,9.3920,"white","Arzachena"],
+["Perfugas","Comune","Perfugas",40.8340,8.8830,"white","Perfugas"],
+["Bitti","Comune","Bitti",40.4770,9.3840,"white","Bitti"],
+["Torralba","Comune","Torralba",40.5130,8.7600,"white","Torralba"],
+["Villanova Monteleone","Comune","Villanova Monteleone",40.5000,8.4670,"white","Villanova_Monteleone"],
+["Orune","Comune","Orune",40.4070,9.3690,"white","Orune"],
+["Dorgali","Comune","Dorgali",40.2920,9.5880,"white","Dorgali"],
+["Bortigali","Comune","Bortigali",40.2830,8.8370,"white","Bortigali"],
+["Oliena","Comune","Oliena",40.2760,9.4050,"white","Oliena"],
+["Abbasanta","Comune","Abbasanta",40.1260,8.8190,"white","Abbasanta"],
+["Fonni","Comune","Fonni",40.1190,9.2510,"white","Fonni"],
+["Paulilatino","Comune","Paulilatino",40.0870,8.7640,"white","Paulilatino"],
+["Cabras","Comune","Cabras",39.9300,8.5330,"white","Cabras"],
+["Isili","Comune","Isili",39.7390,9.1060,"white","Isili"],
+["Esterzili","Comune","Esterzili",39.7810,9.2860,"white","Esterzili"],
+["Barumini","Comune","Barumini",39.7040,9.0040,"white","Barumini"],
+["Serri","Comune","Serri",39.7010,9.1480,"white","Serri"],
+["Siddi","Comune","Siddi",39.6710,8.8880,"white","Siddi"],
+["Orroli","Comune","Orroli",39.6930,9.2500,"white","Orroli"],
+["Mogoro","Comune","Mogoro",39.6850,8.7780,"white","Mogoro"],
+["Villanovaforru","Comune","Villanovaforru",39.6310,8.8690,"white","Villanovaforru"],
+["Villanovafranca","Comune","Villanovafranca",39.6410,9.0000,"white","Villanovafranca"],
+["Ballao","Comune","Ballao",39.5480,9.3610,"white","Ballao"],
+["Gonnesa","Comune","Gonnesa",39.2660,8.4700,"white","Gonnesa"],
+["Quartucciu","Comune","Quartucciu",39.2510,9.1790,"white","Quartucciu"],
+["Quartu Sant'Elena","Comune","Quartu Sant'Elena",39.2410,9.1840,"white","Quartu_Sant'Elena"],
+["Sant'Anna Arresi","Comune","Sant'Anna Arresi",39.0030,8.6430,"white","Sant'Anna_Arresi"],
+["Dualchi","Comune","Dualchi",40.2300,8.8900,"white","Dualchi"]
 ];
 
+/* ======= MAPPA ======= */
+let map, mapLoaded=false, layers=[];
+
 function openMap(){
-document.getElementById("home").classList.remove("show");
-document.getElementById("mapPage").classList.add("show");
+home.classList.remove("show");
+mapPage.classList.add("show");
 
 if(!mapLoaded){
-map = L.map('map').setView([40,9],8);
+map = L.map('map',{zoomControl:true}).setView([40.05,9.0],8);
 
-L.tileLayer(
-'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-{maxZoom:19}
-).addTo(map);
-
-points.forEach(p=>{
-L.circleMarker([p[1],p[2]],{
-radius:7,
-color:p[3],
-fillColor:p[3],
-fillOpacity:1
-}).addTo(map).bindPopup(p[0]);
-});
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+maxZoom:19,
+attribution:'© OpenStreetMap'
+}).addTo(map);
 
 mapLoaded=true;
-setTimeout(function(){map.invalidateSize();},300);
+renderMarkers();
+setTimeout(()=>map.invalidateSize(),300);
+}else{
+setTimeout(()=>map.invalidateSize(),150);
 }
 }
 
 function goHome(){
-document.getElementById("mapPage").classList.remove("show");
-document.getElementById("home").classList.add("show");
+mapPage.classList.remove("show");
+home.classList.add("show");
 }
 
-function gps(){
-navigator.geolocation.getCurrentPosition(function(pos){
-map.setView([pos.coords.latitude,pos.coords.longitude],10);
+function wiki(slug){
+return `https://${LANG}.wikipedia.org/wiki/${slug}`;
+}
+
+function popupHTML(p){
+return `
+<div class="popup">
+<a target="_blank" href="${wiki(p[6])}">${p[0]}</a><br>
+<strong>${p[1]}</strong><br>
+${p[2]}<br>
+<span class="small">${p[3].toFixed(4)}, ${p[4].toFixed(4)}</span>
+</div>`;
+}
+
+function clearLayers(){
+layers.forEach(l=>map.removeLayer(l));
+layers=[];
+}
+
+function renderMarkers(){
+if(!mapLoaded) return;
+clearLayers();
+
+const cat = category.value;
+const data = cat==="all" ? places : places.filter(p=>p[1]===cat);
+
+data.forEach(p=>{
+let style;
+
+if(p[1]==="Comune"){
+style={radius:7,color:"#ffffff",weight:2,fillOpacity:0};
+}else{
+style={radius:7,color:p[5],fillColor:p[5],fillOpacity:1,weight:1};
+}
+
+const m = L.circleMarker([p[3],p[4]],style)
+.addTo(map)
+.bindPopup(popupHTML(p));
+
+layers.push(m);
 });
 }
+
+function searchPlace(){
+const q = search.value.trim().toLowerCase();
+if(!q) return;
+
+const found = places.find(p=>p[0].toLowerCase().includes(q));
+if(found){
+map.setView([found[3],found[4]],12);
+}
+}
+
+function gpsLocate(){
+if(!navigator.geolocation){
+alert("GPS non disponibile");
+return;
+}
+
+navigator.geolocation.getCurrentPosition(pos=>{
+const lat=pos.coords.latitude;
+const lng=pos.coords.longitude;
+
+map.setView([lat,lng],10);
+
+const me = L.marker([lat,lng]).addTo(map).bindPopup("Sei qui").openPopup();
+layers.push(me);
+
+/* evidenzia vicini ~50km */
+const near = places.filter(p=>distanceKm(lat,lng,p[3],p[4])<=50);
+if(near.length){
+clearLayers();
+near.forEach(p=>{
+let c = p[1]==="Comune" ? "#fff" : p[5];
+let fill = p[1]==="Comune" ? 0 : 1;
+const mk=L.circleMarker([p[3],p[4]],{
+radius:9,color:c,fillColor:c,fillOpacity:fill,weight:2
+}).addTo(map).bindPopup(popupHTML(p));
+layers.push(mk);
+});
+L.marker([lat,lng]).addTo(map).bindPopup("Sei qui").openPopup();
+}
+},()=>{
+alert("Impossibile ottenere la posizione");
+});
+}
+
+function distanceKm(lat1,lon1,lat2,lon2){
+const R=6371;
+const dLat=(lat2-lat1)*Math.PI/180;
+const dLon=(lon2-lon1)*Math.PI/180;
+const a=Math.sin(dLat/2)**2+
+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*
+Math.sin(dLon/2)**2;
+return 2*R*Math.asin(Math.sqrt(a));
+}
+
+window.addEventListener("resize",()=>{
+if(mapLoaded) map.invalidateSize();
+});
+
+applyTexts();
 </script>
 </body>
 </html>
