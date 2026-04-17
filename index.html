@@ -2,89 +2,114 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>I Giganti della Sardegna</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
-html,body{margin:0;height:100%;font-family:Arial}
-#home,#mapPage{height:100dvh;display:none}
+html,body{margin:0;padding:0;height:100%;font-family:Arial,sans-serif}
+#home,#mapPage{display:none;height:100vh}
 .show{display:block}
-#home{background:#111;color:#fff;text-align:center;padding-top:20vh}
-button,select,input{padding:10px;margin:4px;border-radius:12px;border:none}
-#top{background:#111;color:#fff;padding:8px}
-#map{height:calc(100dvh - 110px)}
-#foot{background:#111;color:#fff;text-align:center;padding:10px}
+#home{
+background:#111 url('image.png') center/cover no-repeat;
+color:white;text-align:center;
+}
+#overlay{
+height:100%;
+background:rgba(0,0,0,.45);
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+gap:20px;
+}
+h1{color:#f3d18b;margin:0;padding:0 20px}
+button,select{
+padding:10px 14px;
+border:none;
+border-radius:14px;
+cursor:pointer;
+}
+#topbar{
+background:#111;color:#fff;padding:8px;
+display:flex;gap:6px;flex-wrap:wrap;
+}
+#map{height:calc(100vh - 90px)}
+#footer{
+background:#111;color:#fff;text-align:center;padding:10px
+}
 </style>
 </head>
 <body>
 
 <div id="home" class="show">
-<h1>I Giganti della Sardegna</h1>
-<button onclick="openMap()">MAP INTERATTIVO</button>
-<div id="foot"><b>PASSAMONTI</b>_COMMUNICATION</div>
+  <div id="overlay">
+    <h1>I Giganti della Sardegna</h1>
+    <button onclick="openMap()">MAP INTERATTIVO</button>
+    <div id="footer"><b>PASSAMONTI</b>_COMMUNICATION</div>
+  </div>
 </div>
 
 <div id="mapPage">
-<div id="top">
-<button onclick="goHome()">Home</button>
-<button onclick="gps()">GPS</button>
-<select id="lang" onchange="setLang()">
-<option value="it">🇮🇹</option>
-<option value="en">🇬🇧</option>
-<option value="fr">🇫🇷</option>
-<option value="es">🇪🇸</option>
-<option value="de">🇩🇪</option>
-</select>
-</div>
-<div id="map"></div>
-<div id="foot"><b>PASSAMONTI</b>_COMMUNICATION</div>
+  <div id="topbar">
+    <button onclick="goHome()">Home</button>
+    <button onclick="gps()">GPS</button>
+
+    <select id="lang">
+      <option value="it">🇮🇹</option>
+      <option value="en">🇬🇧</option>
+    </select>
+  </div>
+
+  <div id="map"></div>
+  <div id="footer"><b>PASSAMONTI</b>_COMMUNICATION</div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-let map,lang='it',started=false;
+let mapLoaded=false;
+let map;
 
-const data=[
-['Bosa','Borgo','Bosa',40.3,8.5,'blue','Bosa'],
-['Su Nuraxi','Nuraghe','Barumini',39.703,8.999,'red','Su_Nuraxi'],
-['Anghelu Ruju','Domus',40.6275,8.3197,'green','Anghelu_Ruju'],
-['Palmavera','Nuraghe','Alghero',40.604,8.254,'red','Palmavera'],
-['Castelsardo','Borgo','Castelsardo',40.92,8.71,'blue','Castelsardo']
+const points = [
+["Bosa",40.3,8.5,"blue"],
+["Su Nuraxi",39.703,8.999,"red"],
+["Anghelu Ruju",40.6275,8.3197,"green"],
+["Palmavera",40.604,8.254,"red"],
+["Castelsardo",40.92,8.71,"blue"]
 ];
 
 function openMap(){
-document.getElementById('home').classList.remove('show');
-document.getElementById('mapPage').classList.add('show');
+document.getElementById("home").classList.remove("show");
+document.getElementById("mapPage").classList.add("show");
 
-if(!started){
-map=L.map('map').setView([40,9],8);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+if(!mapLoaded){
+map = L.map('map').setView([40,9],8);
 
-data.forEach(p=>{
-L.circleMarker([p[3],p[4]],{
-radius:7,color:p[5],fillColor:p[5],fillOpacity:1
-}).addTo(map).bindPopup(
-'<b><a target=_blank href=https://'+lang+'.wikipedia.org/wiki/'+p[6]+'>'+p[0]+'</a></b><br>'+p[1]
-);
+L.tileLayer(
+'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+{maxZoom:19}
+).addTo(map);
+
+points.forEach(p=>{
+L.circleMarker([p[1],p[2]],{
+radius:7,
+color:p[3],
+fillColor:p[3],
+fillOpacity:1
+}).addTo(map).bindPopup(p[0]);
 });
 
-started=true;
-setTimeout(()=>map.invalidateSize(),300);
+mapLoaded=true;
+setTimeout(function(){map.invalidateSize();},300);
 }
 }
 
 function goHome(){
-document.getElementById('mapPage').classList.remove('show');
-document.getElementById('home').classList.add('show');
-}
-
-function setLang(){
-lang=document.getElementById('lang').value;
-location.reload();
+document.getElementById("mapPage").classList.remove("show");
+document.getElementById("home").classList.add("show");
 }
 
 function gps(){
-navigator.geolocation.getCurrentPosition(pos=>{
+navigator.geolocation.getCurrentPosition(function(pos){
 map.setView([pos.coords.latitude,pos.coords.longitude],10);
 });
 }
