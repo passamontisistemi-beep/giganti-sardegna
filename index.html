@@ -4,66 +4,339 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>I Giganti della Sardegna</title>
+
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
 <style>
-html,body{margin:0;height:100%;font-family:Arial,sans-serif} .page{display:none;height:100%}.show{display:block}
-.home{background:url('image.png') center/cover no-repeat}.overlay{height:100%;background:rgba(0,0,0,.45);display:flex;flex-direction:column;justify-content:space-between;align-items:center;color:#f3d18b}
-.title{font-size:clamp(34px,8vw,68px);font-weight:800;padding-top:8vh;text-align:center;padding-inline:10px}
-.btn,.topbar button,select{padding:10px 14px;border:none;border-radius:22px;font-weight:700}
-.btn{background:#f3d18b;color:#111}.topbar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;background:#111;color:#fff;padding:8px}.footer{background:#111;color:#fff;text-align:center;padding:12px}.footer b{font-weight:900}
-#map{height:calc(100% - 140px)} .rssWrap{background:#111;color:#fff;overflow:hidden;white-space:nowrap;padding:8px}.rss{display:inline-block;animation:mar 20s linear infinite}@keyframes mar{from{transform:translateX(100%)}to{transform:translateX(-100%)}}
-a{color:#0b57d0}
+html,body{
+  margin:0;
+  padding:0;
+  height:100%;
+  font-family:Arial,sans-serif;
+}
+
+.page{
+  display:none;
+  height:100dvh;
+}
+
+.show{
+  display:block;
+}
+
+/* HOME */
+#home{
+  background:url('image.png') center/cover no-repeat;
+  color:#fff;
+}
+
+.overlay{
+  height:100%;
+  background:rgba(0,0,0,.45);
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.title{
+  margin-top:8vh;
+  font-size:clamp(34px,8vw,70px);
+  font-weight:900;
+  text-align:center;
+  color:#f3d18b;
+  padding:0 15px;
+}
+
+.main-btn{
+  padding:14px 22px;
+  border:none;
+  border-radius:28px;
+  background:#f3d18b;
+  color:#111;
+  font-size:16px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.footer{
+  width:100%;
+  background:#111;
+  color:#fff;
+  text-align:center;
+  padding:12px;
+}
+
+.footer b{
+  font-weight:900;
+}
+
+/* MAPPA */
+.topbar{
+  background:#111;
+  color:#fff;
+  padding:8px;
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
+.topbar button,
+.topbar select,
+.topbar input{
+  padding:8px 10px;
+  border:none;
+  border-radius:18px;
+}
+
+#map{
+  width:100%;
+  height:calc(100dvh - 150px);
+}
+
+.rss-wrap{
+  background:#111;
+  color:#fff;
+  overflow:hidden;
+  white-space:nowrap;
+  padding:8px;
+}
+
+.rss{
+  display:inline-block;
+  animation:scroll 20s linear infinite;
+}
+
+@keyframes scroll{
+  from{transform:translateX(100%)}
+  to{transform:translateX(-100%)}
+}
+
+a{
+  color:#0056ff;
+}
 </style>
 </head>
+
 <body>
-<section id='home' class='page show home'>
-<div class='overlay'>
-<div class='title'>I Giganti della Sardegna</div>
-<button class='btn' onclick='goMap()'>MAP INTERATTIVO</button>
-<div class='footer'><b>PASSAMONTI</b>_COMMUNICATION</div>
-</div>
+
+<!-- PAGINA 1 -->
+<section id="home" class="page show">
+  <div class="overlay">
+    <div class="title">I Giganti della Sardegna</div>
+
+    <button class="main-btn" onclick="openMap()">
+      MAP INTERATTIVO
+    </button>
+
+    <div class="footer">
+      <b>PASSAMONTI</b>_COMMUNICATION
+    </div>
+  </div>
 </section>
-<section id='mapPage' class='page'>
-<div class='topbar'>
-<strong id='ttl'>I Giganti della Sardegna</strong>
-<button onclick='goHome()' id='bhome'>Home</button>
-<button onclick='gps()' id='bgps'>GPS</button>
-<select id='lang' onchange='setLang()'>
-<option value='it'>🇮🇹 IT</option><option value='en'>🇬🇧 EN</option><option value='fr'>🇫🇷 FR</option><option value='es'>🇪🇸 ES</option><option value='de'>🇩🇪 DE</option></select>
-<select id='area' onchange='filterArea()'>
-<option value='all'>Seleziona area</option><option value='nord'>Nord</option><option value='centro'>Centro</option><option value='sud'>Sud</option></select>
-</div>
-<div id='map'></div>
-<div class='rssWrap'><div class='rss'>prova prova prova • prova prova prova • prova prova prova • prova prova prova • </div></div>
-<div class='footer'><b>PASSAMONTI</b>_COMMUNICATION</div>
+
+<!-- PAGINA 2 -->
+<section id="mapPage" class="page">
+
+  <div class="topbar">
+    <strong>I Giganti della Sardegna</strong>
+
+    <button onclick="goHome()">Home</button>
+    <button onclick="gpsLocate()">GPS</button>
+
+    <select id="lang" onchange="changeLang()">
+      <option value="it">🇮🇹</option>
+      <option value="en">🇬🇧</option>
+      <option value="fr">🇫🇷</option>
+      <option value="es">🇪🇸</option>
+      <option value="de">🇩🇪</option>
+    </select>
+
+    <select id="area" onchange="filterArea()">
+      <option value="all">Area</option>
+      <option value="nord">Nord</option>
+      <option value="centro">Centro</option>
+      <option value="sud">Sud</option>
+    </select>
+
+    <input id="search" placeholder="Cerca luogo">
+    <button onclick="searchPlace()">Vai</button>
+  </div>
+
+  <div id="map"></div>
+
+  <div class="rss-wrap">
+    <div class="rss">
+      prova prova prova • prova prova prova • prova prova prova •
+    </div>
+  </div>
+
+  <div class="footer">
+    <b>PASSAMONTI</b>_COMMUNICATION
+  </div>
+
 </section>
-<script src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'></script>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
-let map,markers=[],started=false;
-const pts=[
-['Lollove','Borgo','Nuoro',40.3650,9.3324,'orange','https://it.wikipedia.org/wiki/Lollove','nord'],
-['Tempio Pausania','Borgo','Tempio Pausania',40.9000,9.1000,'orange','https://it.wikipedia.org/wiki/Tempio_Pausania','nord'],
-['Aggius','Borgo','Aggius',40.9300,8.9800,'orange','https://it.wikipedia.org/wiki/Aggius','nord'],
-['Atzara','Borgo','Atzara',39.9900,9.0700,'orange','https://it.wikipedia.org/wiki/Atzara','centro'],
-['Bosa','Borgo','Bosa',40.3000,8.5000,'orange','https://it.wikipedia.org/wiki/Bosa','nord'],
-['Carloforte','Borgo','Carloforte',39.1400,8.3000,'orange','https://it.wikipedia.org/wiki/Carloforte','sud'],
-['Castelsardo','Borgo','Castelsardo',40.9200,8.7100,'orange','https://it.wikipedia.org/wiki/Castelsardo','nord'],
-['Su Nuraxi','Nuraghe','Barumini',39.703,8.999,'red','https://it.wikipedia.org/wiki/Su_Nuraxi','sud'],
-['Nuraghe Arrubiu','Nuraghe','Orroli',39.662,9.298,'red','https://it.wikipedia.org/wiki/Nuraghe_Arrubiu','sud'],
-['Funtana Coberta','Nuraghe','Ballao',39.584,9.383,'red','https://it.wikipedia.org/wiki/Funtana_Coberta','sud'],
-['Anghelu Ruju','Domus de Janas','Alghero',40.6275,8.3197,'gold','https://it.wikipedia.org/wiki/Anghelu_Ruju','nord'],
-['Su Crucifissu Mannu','Domus de Janas','Porto Torres',40.8100,8.4400,'gold','https://it.wikipedia.org/wiki/Su_Crucifissu_Mannu','nord'],
-['Sant Andrea Priu','Domus de Janas','Bonorva',40.4194,8.8358,'gold','https://it.wikipedia.org/wiki/Necropoli_di_Sant%27Andrea_Priu','centro'],
-['Puttu Codinu','Domus de Janas','Villanova Monteleone',40.4853,8.4419,'gold','https://it.wikipedia.org/wiki/Necropoli_di_Puttu_Codinu','nord'],
-['Montessu','Domus de Janas','Villaperuccio',39.1242,8.6658,'gold','https://it.wikipedia.org/wiki/Necropoli_di_Montessu','sud'],
-['Pranu Mutteddu','Domus de Janas','Goni',39.5761,9.2781,'gold','https://it.wikipedia.org/wiki/Pranu_Mutteddu','sud']];
-function goMap(){home.classList.remove('show');mapPage.classList.add('show');if(!started){map=L.map('map').setView([40,9],8);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);render(pts);started=true;setTimeout(()=>map.invalidateSize(),300);}}
-function goHome(){mapPage.classList.remove('show');home.classList.add('show');}
-function popup(p){return `<b><a target='_blank' href='${p[6]}'>${p[0]}</a></b><br>Tipo: ${p[1]}<br>Comune: ${p[2]}<br>Descrizione: Luogo storico e culturale della Sardegna.`}
-function render(arr){markers.forEach(m=>map.removeLayer(m));markers=[];arr.forEach(p=>{let m=L.circleMarker([p[3],p[4]],{radius:7,color:p[5],fillColor:p[5],fillOpacity:1}).addTo(map).bindPopup(popup(p));markers.push(m);});}
-function gps(){navigator.geolocation.getCurrentPosition(pos=>{const me=[pos.coords.latitude,pos.coords.longitude];map.setView(me,10);L.marker(me).addTo(map).bindPopup('Sei qui').openPopup();},()=>alert('GPS non disponibile'));}
-function filterArea(){const v=area.value;render(v==='all'?pts:pts.filter(x=>x[7]===v));}
-function setLang(){const l=lang.value;const t={it:['Home','Seleziona area'],en:['Home','Select area'],fr:['Accueil','Sélection zone'],es:['Inicio','Seleccionar zona'],de:['Start','Bereich wählen']};bhome.textContent=t[l][0];area.options[0].text=t[l][1];}
+let map;
+let markers=[];
+let started=false;
+let currentLang="it";
+
+/* DATABASE */
+const places = [
+
+/* BORGHI */
+["Lollove","Borgo","Nuoro",40.3650,9.3324,"blue","Lollove","nord"],
+["Tempio Pausania","Borgo","Tempio",40.9000,9.1000,"blue","Tempio_Pausania","nord"],
+["Aggius","Borgo","Aggius",40.9300,8.9800,"blue","Aggius","nord"],
+["Atzara","Borgo","Atzara",39.9900,9.0700,"blue","Atzara","centro"],
+["Bosa","Borgo","Bosa",40.3000,8.5000,"blue","Bosa","nord"],
+["Carloforte","Borgo","Carloforte",39.1400,8.3000,"blue","Carloforte","sud"],
+["Galtellì","Borgo","Nuoro",40.3900,9.6100,"blue","Galtelli","nord"],
+["Laconi","Borgo","Laconi",39.8500,9.0500,"blue","Laconi","centro"],
+["La Maddalena","Borgo","La Maddalena",41.2100,9.4100,"blue","La_Maddalena","nord"],
+["Oliena","Borgo","Oliena",40.2700,9.4000,"blue","Oliena","nord"],
+["Posada","Borgo","Posada",40.6300,9.7200,"blue","Posada","nord"],
+["Sadali","Borgo","Sadali",39.8200,9.2700,"blue","Sadali","centro"],
+["Sardara","Borgo","Sardara",39.6200,8.8200,"blue","Sardara","sud"],
+["Gavoi","Borgo","Gavoi",40.1600,9.2000,"blue","Gavoi","centro"],
+["Castelsardo","Borgo","Castelsardo",40.9200,8.7100,"blue","Castelsardo","nord"],
+
+/* NURAGHI */
+["Su Nuraxi","Nuraghe","Barumini",39.703,8.999,"red","Su_Nuraxi","sud"],
+["Nuraghe Arrubiu","Nuraghe","Orroli",39.662,9.298,"red","Nuraghe_Arrubiu","sud"],
+["Funtana Coberta","Nuraghe","Ballao",39.584,9.383,"red","Funtana_Coberta","sud"],
+
+/* DOMUS */
+["Anghelu Ruju","Domus de Janas","Alghero",40.6275,8.3197,"green","Anghelu_Ruju","nord"],
+["Su Crucifissu Mannu","Domus de Janas","Porto Torres",40.8100,8.4400,"green","Su_Crucifissu_Mannu","nord"],
+["Sant'Andrea Priu","Domus de Janas","Bonorva",40.4194,8.8358,"green","Necropoli_di_Sant%27Andrea_Priu","centro"],
+["Puttu Codinu","Domus de Janas","Villanova Monteleone",40.4853,8.4419,"green","Necropoli_di_Puttu_Codinu","nord"],
+["Mesu e Montes","Domus de Janas","Ossi",40.6389,8.5831,"green","Ossi","nord"],
+["Montessu","Domus de Janas","Villaperuccio",39.1242,8.6658,"green","Necropoli_di_Montessu","sud"],
+["Pranu Mutteddu","Domus de Janas","Goni",39.5761,9.2781,"green","Pranu_Mutteddu","sud"]
+];
+
+function openMap(){
+  document.getElementById("home").classList.remove("show");
+  document.getElementById("mapPage").classList.add("show");
+
+  if(!started){
+    map = L.map("map").setView([40,9],8);
+
+    L.tileLayer(
+      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      {maxZoom:19}
+    ).addTo(map);
+
+    drawMarkers(places);
+
+    started=true;
+    setTimeout(()=>map.invalidateSize(),300);
+  }else{
+    setTimeout(()=>map.invalidateSize(),200);
+  }
+}
+
+function goHome(){
+  document.getElementById("mapPage").classList.remove("show");
+  document.getElementById("home").classList.add("show");
+}
+
+function wikiUrl(slug){
+  return "https://" + currentLang + ".wikipedia.org/wiki/" + slug;
+}
+
+function popupHTML(p){
+  return `
+    <b>
+      <a target="_blank" href="${wikiUrl(p[6])}">
+        ${p[0]}
+      </a>
+    </b><br>
+    Tipo: ${p[1]}<br>
+    Comune: ${p[2]}<br>
+    Descrizione: Luogo storico della Sardegna.
+  `;
+}
+
+function drawMarkers(data){
+  markers.forEach(m=>map.removeLayer(m));
+  markers=[];
+
+  data.forEach(p=>{
+    let marker = L.circleMarker(
+      [p[3],p[4]],
+      {
+        radius:7,
+        color:p[5],
+        fillColor:p[5],
+        fillOpacity:1
+      }
+    ).addTo(map).bindPopup(popupHTML(p));
+
+    markers.push(marker);
+  });
+}
+
+function filterArea(){
+  const area = document.getElementById("area").value;
+
+  if(area==="all"){
+    drawMarkers(places);
+  }else{
+    drawMarkers(
+      places.filter(p=>p[7]===area)
+    );
+  }
+}
+
+function changeLang(){
+  currentLang = document.getElementById("lang").value;
+}
+
+function searchPlace(){
+  const q = document
+    .getElementById("search")
+    .value
+    .toLowerCase();
+
+  const found = places.find(p =>
+    p[0].toLowerCase().includes(q)
+  );
+
+  if(found){
+    map.setView([found[3],found[4]],12);
+  }
+}
+
+function gpsLocate(){
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+
+      map.setView([lat,lng],10);
+
+      L.marker([lat,lng])
+        .addTo(map)
+        .bindPopup("Sei qui")
+        .openPopup();
+    },
+    ()=>{
+      alert("GPS non disponibile");
+    }
+  );
+}
+
+window.addEventListener("resize",()=>{
+  if(map) map.invalidateSize();
+});
 </script>
+
 </body>
 </html>
